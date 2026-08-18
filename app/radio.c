@@ -34,12 +34,12 @@ static volatile uint32_t timeout_count = 0;
 static volatile uint32_t crc_count = 0;
 
 static volatile uint32_t g_airtime = 0; // 用于调试的变量，记录发送时间
-static volatile uint8_t g_tx_remaining[10];  // 记录每个周期调用发送函数时的剩余时间，单位毫秒
+static volatile uint8_t g_tx_remaining[256];  // 记录每个周期调用发送函数时的剩余时间，单位毫秒
 static volatile uint8_t g_tx_remaining_index = 0; // 记录remaining的索引
-static volatile uint8_t g_rx_remaining[10];  // 记录每个周期调用发送函数时的剩余时间，单位毫秒
+static volatile uint8_t g_rx_remaining[256];  // 记录每个周期调用发送函数时的剩余时间，单位毫秒
 static volatile uint8_t g_rx_remaining_index = 0; // 记录remaining的索引
 
-#define MASTER  1 
+#define MASTER  0 
 
 
 // 从进入rx到退出rx的时间，单位毫秒
@@ -235,8 +235,20 @@ void radio_loop(void)
             // 暂时不推送心跳包
             if (g_packet_rx.header.type == DATA)
             {
+                // 清除0x00数据
+                uint8_t data_temp[sizeof(pkg_rx)];
+                memset(data_temp, 0, sizeof(data_temp));
+                uint16_t data_size = 0;
+                for (uint16_t i = 0; i < pkg_rx_size; i++)
+                {
+                    if (pkg_rx[data_size] != 0x00)
+                    {
+                        data_temp[data_size] = pkg_rx[i];
+                        data_size++;
+                    }
+                }
                 // 推送数据到数据池
-                pool_push_data(pkg_rx, pkg_rx_size);
+                pool_push_data(data_temp, data_size);
             }
             // 将数据池中的数据推送到串口发送缓冲区
             pool_push_to_serial_data();

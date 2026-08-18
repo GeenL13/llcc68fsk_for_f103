@@ -41,6 +41,7 @@ void packet_get_new_payload(packet_t *packet, uint8_t *buf, uint16_t* len)
 {
     if (buf == NULL || len == NULL) return;
     // 从串口获取数据，直接写进buf中
+    memset(buf, 0, *len);
     uint16_t bytes_read = serial_get_received_byte(buf, packet_payload_len);
     if (bytes_read == 0)
     {
@@ -60,8 +61,8 @@ void packet_get_new_payload(packet_t *packet, uint8_t *buf, uint16_t* len)
         // 串口有数据
         packet->header.type = DATA;
         packet->header.id++;
-        // 将实际长度写入len
-        *len = bytes_read;
+        // 将实际长度写入len（固定长8bytes）
+        *len = 8;
     }
 }
 
