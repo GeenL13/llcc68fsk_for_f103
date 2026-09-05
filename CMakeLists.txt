@@ -53,6 +53,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/llcc68/llcc68.c
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/llcc68/llcc68_driver_version.c
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/llcc68/llcc68_hal.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/can/Can_Config.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/can/can_receive_control.c
 )
 
 # Add include paths
@@ -62,6 +64,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/app
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/llcc68
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/can
 )
 
 # Add project symbols (macros)

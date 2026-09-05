@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "can.h"
 #include "dma.h"
 #include "spi.h"
 #include "usart.h"
@@ -27,6 +28,8 @@
 /* USER CODE BEGIN Includes */
 #include "radio.h"
 #include "serial.h"
+#include "Can_Config.h"
+#include "can_receive_control.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,13 +50,63 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+// CAN数据帧
+typedef struct __attribute__((__packed__))
+{
+    uint8_t  frame_start_1; // 帧头: 0x55
+    uint8_t  frame_start_2; // 帧头: 0xAA
+    uint8_t  ide;        // 0: 标准帧, 1: 扩展帧
+    uint8_t  rtr;        // 0: 数据帧, 1: 远程帧
+    uint8_t  dlc;        // 0~8
+    uint8_t  reserved;   // 保留位
+    uint32_t id;         // ide=0 时，仅低 11 bit 有效；ide=1 时，低 29 bit 有效
+    uint8_t  data[8];    // 实际用前 dlc 个字节
+    uint16_t crc;       // CRC 校验码
+} can_frame_t;
+can_frame_t can_frame;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+void CAN_Callback(void* context)
+{
+  // can数据存储变量
+	CAN_RxHeaderTypeDef header;
+	uint8_t data[8] = {0};
 
+	// 从FIFO中读取数据
+	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &header, data);
+
+	// 符合接收条件则存储数据
+  if (check_and_update_cooldown(header.StdId) == 0)
+  {
+    // 填充数据帧
+    can_frame_buffer[can_frame_current_receive_index]
+    .frame_start_1 = 0x55;
+    can_frame_buffer[can_frame_current_receive_index]
+    .frame_start_2 = 0xAA;
+    can_frame_buffer[can_frame_current_receive_index]
+    .ide = (header.IDE == CAN_ID_STD) ? 0 : 1;
+    can_frame_buffer[can_frame_current_receive_index]
+    .rtr = (header.RTR == CAN_RTR_DATA) ? 0 : 1;
+    can_frame_buffer[can_frame_current_receive_index]
+    .dlc = header.DLC;
+    can_frame_buffer[can_frame_current_receive_index]
+    .id = (header.IDE == CAN_ID_STD) ? header.StdId : header.ExtId;
+    memcpy(can_frame_buffer[can_frame_current_receive_index].data, data, 8);	// 此处应当固定8字节，以防内存界限出现错误
+    // 计算crc
+    can_frame_buffer[can_frame_current_receive_index].crc 
+    = Calculate_CRC16((uint8_t*)&can_frame_buffer[can_frame_current_receive_index], 
+    sizeof(can_frame_t) - 2);
+
+    // 更新索引和计数
+    can_frame_current_receive_index 
+    = (can_frame_current_receive_index + 1) % CAN_FRAME_BUFFER_SIZE;
+
+    can_frame_buffer_receive_count++;
+  }
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -93,9 +146,20 @@ int main(void)
   MX_DMA_Init();
   MX_SPI1_Init();
   MX_USART1_UART_Init();
+  MX_CAN_Init();
   /* USER CODE BEGIN 2 */
   radio_init();
   serial_receive_byte_on();
+  // 初始化can
+  CAN_Init(&hcan);
+  CAN_Filter_Config(&hcan, 
+    CAN_FILTER(13) 
+    | CAN_FIFO_1 
+    | CAN_STDID 
+    | CAN_DATA_TYPE, 
+    0xC0, 
+    0x00);	
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

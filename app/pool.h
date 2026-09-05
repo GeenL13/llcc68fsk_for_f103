@@ -24,4 +24,9 @@ void pool_push_data(const uint8_t *data, uint8_t data_len);
 void pool_push_to_serial_data(void);
 
 
+// -------- CAN_POLL -------- //
+void poll_can_push_data(uint8_t *data, uint16_t data_len);
+void poll_can_get_data(uint8_t *data, uint16_t *data_len);
+
+
 #endif /* POOL_H_ */

@@ -1,3 +1,7 @@
 build
 mx.scratch
 !.settings
+Debug
+.mxproject
+.project
+.vscode

@@ -39,7 +39,7 @@ static volatile uint8_t g_tx_remaining_index = 0; // 记录remaining的索引
 static volatile uint8_t g_rx_remaining[256];  // 记录每个周期调用发送函数时的剩余时间，单位毫秒
 static volatile uint8_t g_rx_remaining_index = 0; // 记录remaining的索引
 
-#define MASTER  0 
+#define MASTER  1 
 
 
 // 从进入rx到退出rx的时间，单位毫秒
@@ -59,7 +59,7 @@ typedef struct
 llcc68_user_config_t g_llcc68_user_config = 
 {
     .rf_freq = 433000000, // 433MHz
-    .tx_power = 7,     // 发射功率7dBm
+    .tx_power = 22,     // 发射功率22dBm
 };
 
 // PA配置参数
