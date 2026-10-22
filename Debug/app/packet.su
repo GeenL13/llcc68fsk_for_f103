@@ -1,3 +1,0 @@
-../app/packet.c:22:6:packet_init	16	static
-../app/packet.c:32:6:packet_get_new_payload	40	static
-../app/packet.c:62:6:packet_parse	56	dynamic

@@ -64,6 +64,10 @@ void Error_Handler(void);
 #define NRESET_GPIO_Port GPIOA
 #define CS_Pin GPIO_PIN_4
 #define CS_GPIO_Port GPIOA
+#define TXEN_Pin GPIO_PIN_12
+#define TXEN_GPIO_Port GPIOB
+#define RXEN_Pin GPIO_PIN_13
+#define RXEN_GPIO_Port GPIOB
 #define BUSY_Pin GPIO_PIN_3
 #define BUSY_GPIO_Port GPIOB
 #define LED_1_Pin GPIO_PIN_4

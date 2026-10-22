@@ -11,4 +11,6 @@
 void radio_init(void);
 void radio_loop(void);
 
+void radio_set_mode(int mode);
+
 #endif /* RADIO_H_ */

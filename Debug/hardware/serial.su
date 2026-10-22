@@ -1,7 +1,0 @@
-../hardware/serial.c:51:17:serial_receive_byte_on	8	static
-../hardware/serial.c:62:10:serial_get_received_byte	24	static
-../hardware/serial.c:117:6:HAL_UART_RxHalfCpltCallback	16	static
-../hardware/serial.c:129:6:HAL_UART_RxCpltCallback	16	static
-../hardware/serial.c:145:6:serial_transmit_byte_on	16	static
-../hardware/serial.c:185:10:serial_push_transmit_byte	24	static
-../hardware/serial.c:238:6:HAL_UART_TxCpltCallback	24	static

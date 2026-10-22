@@ -39,7 +39,7 @@ static volatile uint8_t g_tx_remaining_index = 0; // 记录remaining的索引
 static volatile uint8_t g_rx_remaining[256];  // 记录每个周期调用发送函数时的剩余时间，单位毫秒
 static volatile uint8_t g_rx_remaining_index = 0; // 记录remaining的索引
 
-#define MASTER  0 
+#define MASTER  0
 
 
 // 从进入rx到退出rx的时间，单位毫秒
@@ -73,15 +73,15 @@ llcc68_pa_cfg_params_t g_llcc68_pa_cfg_params =
 // GFSK调制参数
 llcc68_mod_params_gfsk_t g_gfsk_mod_params =
 {
-    .bw_dsb_param = LLCC68_GFSK_BW_234300, // 带宽125kHz
+    .bw_dsb_param = LLCC68_GFSK_BW_117300, // 带宽125kHz
     .br_in_bps = 50000,                 // 比特率50kbps
-    .fdev_in_hz = 25000,                // 频偏25kHz
+    .fdev_in_hz = 20000,                // 频偏25kHz
     .pulse_shape = LLCC68_GFSK_PULSE_SHAPE_BT_1,    // 高斯脉冲整形，BT=1
 };
 // GFSK包参数
 llcc68_pkt_params_gfsk_t g_gfsk_pkt_params =
 {
-    .preamble_len_in_bits = 16,         // 前导码长度16bit
+    .preamble_len_in_bits = 64,         // 前导码长度64bit
     .preamble_detector = LLCC68_GFSK_PREAMBLE_DETECTOR_MIN_8BITS, // 前导码检测，最小8bit
     .sync_word_len_in_bits = 24,         // 同步字长度24bit
     .address_filtering = LLCC68_GFSK_ADDRESS_FILTERING_DISABLE, // 地址过滤关闭
@@ -169,6 +169,7 @@ void update_state();
 uint32_t radio_get_tx_time_on_air_ms(uint16_t payload_len);
 void process_llcc68_irq(void);
 
+
 void radio_init(void)
 {
     llcc68_init();
@@ -201,6 +202,7 @@ void radio_loop(void)
     switch (g_radio_state)
     {
         case RADIO_STATE_RX:
+        radio_set_mode(0); // 设置为接收模式
         // debug
         HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_SET);
         // 接收状态
@@ -279,6 +281,7 @@ void radio_loop(void)
                 &g_gfsk_pkt_params);
             llcc68_wait_for_idle();
             if (g_radio_status != LLCC68_STATUS_OK) while (1);    // debug
+            // 设置gpio为接收模式（rxen和txen）
             g_radio_status = llcc68_set_rx(NULL, 
                 30); // 开启接收，超时为0表示无限等待
             if (g_radio_status != LLCC68_STATUS_OK) while (1);    // debug
@@ -290,6 +293,7 @@ void radio_loop(void)
         break;
 
         case RADIO_STATE_SILENCE1:
+        radio_set_mode(0); // 设置为接收模式
         // 静默状态1
         // 同步时间
         time_now = get_tick_ms();
@@ -301,6 +305,7 @@ void radio_loop(void)
 
         case RADIO_STATE_TX:
         // 发送状态
+        radio_set_mode(1); // 设置为发送模式
         if (able_to_get_new_pkt)
         {
             // debug
@@ -368,6 +373,7 @@ void radio_loop(void)
         break;
 
         case RADIO_STATE_SILENCE2:
+        radio_set_mode(0); // 设置为接收模式
         // 静默状态2
         // 同步时间
         time_now = get_tick_ms();
@@ -378,6 +384,7 @@ void radio_loop(void)
         break;
 
         default:
+            radio_set_mode(0); // 设置为接收模式
             break;
     }
 }
@@ -454,6 +461,11 @@ void llcc68_init(void)
     llcc68_set_gfsk_sync_word(NULL, 
         g_gfsk_sync_word, 
         sizeof(g_gfsk_sync_word));
+    // 开启rx_boost模式
+    llcc68_wait_for_idle();
+    llcc68_cfg_rx_boosted(NULL, true);
+    // test
+    //llcc68_set_dio2_as_rf_sw_ctrl(NULL, true);
 }
 
 // DIO1中断回调函数
@@ -611,4 +623,21 @@ void process_llcc68_irq(void)
     }
     // 清除中断标志位
     g_llcc68_irq = 0;
+}
+
+
+// GPIO切换收发（高电平有效）    1：发送，0：接收
+void radio_set_mode(int mode)
+{
+    return;
+    if (mode)
+    {
+        HAL_GPIO_WritePin(TXEN_GPIO_Port, TXEN_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(RXEN_GPIO_Port, RXEN_Pin, GPIO_PIN_RESET);
+    }
+    else
+    {
+        HAL_GPIO_WritePin(TXEN_GPIO_Port, TXEN_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(RXEN_GPIO_Port, RXEN_Pin, GPIO_PIN_RESET);
+    }
 }
