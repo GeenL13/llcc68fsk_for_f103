@@ -39,7 +39,7 @@ static volatile uint8_t g_tx_remaining_index = 0; // 记录remaining的索引
 static volatile uint8_t g_rx_remaining[256];  // 记录每个周期调用发送函数时的剩余时间，单位毫秒
 static volatile uint8_t g_rx_remaining_index = 0; // 记录remaining的索引
 
-#define MASTER  0
+#define MASTER  1
 
 
 // 从进入rx到退出rx的时间，单位毫秒
@@ -59,7 +59,7 @@ typedef struct
 llcc68_user_config_t g_llcc68_user_config = 
 {
     .rf_freq = 433000000, // 433MHz
-    .tx_power = 7,     // 发射功率7dBm
+    .tx_power = 22,     // 发射功率7dBm
 };
 
 // PA配置参数
@@ -465,7 +465,7 @@ void llcc68_init(void)
     llcc68_wait_for_idle();
     llcc68_cfg_rx_boosted(NULL, true);
     // test
-    //llcc68_set_dio2_as_rf_sw_ctrl(NULL, true);
+    llcc68_set_dio2_as_rf_sw_ctrl(NULL, true);
 }
 
 // DIO1中断回调函数
@@ -506,6 +506,7 @@ void update_state()
         llcc68_set_standby(NULL, 
         LLCC68_STANDBY_CFG_XOSC);
         // 切换为接收状态，开启接收
+        radio_set_mode(0); // 设置引脚电平为接收模式
         llcc68_wait_for_idle();
         g_radio_status = llcc68_set_gfsk_pkt_params(NULL, 
             &g_gfsk_pkt_params);
@@ -629,15 +630,14 @@ void process_llcc68_irq(void)
 // GPIO切换收发（高电平有效）    1：发送，0：接收
 void radio_set_mode(int mode)
 {
-    return;
     if (mode)
     {
-        HAL_GPIO_WritePin(TXEN_GPIO_Port, TXEN_Pin, GPIO_PIN_SET);
+        //HAL_GPIO_WritePin(TXEN_GPIO_Port, TXEN_Pin, GPIO_PIN_SET);
         HAL_GPIO_WritePin(RXEN_GPIO_Port, RXEN_Pin, GPIO_PIN_RESET);
     }
     else
     {
-        HAL_GPIO_WritePin(TXEN_GPIO_Port, TXEN_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(RXEN_GPIO_Port, RXEN_Pin, GPIO_PIN_RESET);
+        //HAL_GPIO_WritePin(TXEN_GPIO_Port, TXEN_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(RXEN_GPIO_Port, RXEN_Pin, GPIO_PIN_SET);
     }
 }

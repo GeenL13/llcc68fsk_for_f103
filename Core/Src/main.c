@@ -72,7 +72,6 @@ int main(void)
 
   /* USER CODE END 1 */
 
-  
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
