@@ -39,7 +39,7 @@ static volatile uint8_t g_tx_remaining_index = 0; // 记录remaining的索引
 static volatile uint8_t g_rx_remaining[256];  // 记录每个周期调用发送函数时的剩余时间，单位毫秒
 static volatile uint8_t g_rx_remaining_index = 0; // 记录remaining的索引
 
-#define MASTER  1
+#define MASTER  0
 
 
 // 从进入rx到退出rx的时间，单位毫秒

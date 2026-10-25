@@ -4,6 +4,15 @@
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
+    {
+        "type": "cmake",
+        "request": "launch",
+        "name": "CMake: 配置项目",
+        "cmakeDebugType": "configure",
+        "clean": false,
+        "configureAll": false
+    },
         {
             "cwd": "${workspaceFolder}",
             "executable": "./bin/executable.elf",
@@ -42,6 +51,41 @@
                 "enabled": true,
                 "samplesPerSecond": "4"
             }
+        },
+        {
+            "name": "Debug Boot",
+            "type": "stlinkgdbtarget",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/boot",
+            "preBuild": "${command:st-stm32-ide-debug-launch.build}",
+            "runEntry": "main",
+            "imagesAndSymbols": [
+                { "imageFileName": "${workspaceFolder}/boot/build/boot-debug/llcc68fsk_for_f103_boot.elf" }
+            ]
+        },
+        {
+            "name": "Debug App A",
+            "type": "stlinkgdbtarget",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "preBuild": "${command:st-stm32-ide-debug-launch.build}",
+            "runEntry": "main",
+            "imagesAndSymbols": [
+                { "imageFileName": "${workspaceFolder}/build/app-a-debug/llcc68fsk_for_f103.elf" }
+            ]
+        },
+        {
+            "name": "Debug All",
+            "type": "stlinkgdbtarget",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "preBuild": "${command:st-stm32-ide-debug-launch.build}",
+            "runEntry": "main",
+            "imagesAndSymbols": [
+                { "imageFileName": "${workspaceFolder}/build/app-a-debug/llcc68fsk_for_f103.elf" },
+                { "imageFileName": "${workspaceFolder}/boot/build/boot-debug/llcc68fsk_for_f103_boot.elf" }
+            ]
         }
+        
     ]
 }

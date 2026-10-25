@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Configure Boot",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "-S", "${workspaceFolder}/boot",
+        "-B", "${workspaceFolder}/build/boot",
+        "-G", "Ninja",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_TOOLCHAIN_FILE=${workspaceFolder}/upgrade/gcc-arm-none-eabi-ab.cmake",
+        "-DFW_LINKER_SCRIPT=../linker/boot.ld"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Boot",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "${workspaceFolder}/build/boot"],
+      "dependsOn": "Configure Boot",
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "Configure App A",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "-S", "${workspaceFolder}",
+        "-B", "${workspaceFolder}/build/app-a-debug",
+        "-G", "Ninja",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_TOOLCHAIN_FILE=${workspaceFolder}/upgrade/gcc-arm-none-eabi-ab.cmake",
+        "-DFW_LINKER_SCRIPT=linker/app_a.ld",
+        "-DAPP_VECTOR_BASE=0x08003000"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build App A",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "${workspaceFolder}/build/app-a-debug"],
+      "dependsOn": "Configure App A",
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
+}

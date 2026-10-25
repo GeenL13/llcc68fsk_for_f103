@@ -36,6 +36,10 @@ add_executable(${CMAKE_PROJECT_NAME})
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
+if(DEFINED APP_VECTOR_BASE)
+  target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+    APP_VECTOR_BASE=${APP_VECTOR_BASE})
+endif()
 
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE

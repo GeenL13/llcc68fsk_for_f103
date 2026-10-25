@@ -27,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include "radio.h"
 #include "serial.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,7 +54,16 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+int _write(int file, char *ptr, int len)
+{
+  int DataIdx;
 
+  for (DataIdx = 0; DataIdx < len; DataIdx++)
+  {
+    HAL_UART_Transmit(&huart1, (uint8_t *)&ptr[DataIdx], 1, 100);
+  }
+  return len;
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -69,7 +79,14 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+  #ifndef APP_VECTOR_BASE
+  #error "A/B 应用必须定义 APP_VECTOR_BASE"
+  #endif
+  SCB->VTOR = APP_VECTOR_BASE;
+  __DSB();
+  __ISB();
 
+  
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -94,6 +111,8 @@ int main(void)
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  printf("APP start...\n");
+
   radio_init();
   radio_set_mode(0); // 设置为接收模式
   serial_receive_byte_on();

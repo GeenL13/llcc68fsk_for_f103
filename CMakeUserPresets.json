@@ -1,0 +1,15 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "app-a-debug",
+      "inherits": "default",
+      "toolchainFile": "${sourceDir}/upgrade/gcc-arm-none-eabi-ab.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "FW_LINKER_SCRIPT": "linker/app_a.ld",
+        "APP_VECTOR_BASE": "0x08003000"
+      }
+    }
+  ]
+}

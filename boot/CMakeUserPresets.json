@@ -1,0 +1,14 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "boot-debug",
+      "inherits": "default",
+      "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi-boot.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "FW_LINKER_SCRIPT": "linker/boot.ld"
+      }
+    }
+  ]
+}
