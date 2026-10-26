@@ -11,5 +11,11 @@
         "APP_VECTOR_BASE": "0x08003000"
       }
     }
+  ],
+  "buildPresets": [
+    {
+      "name": "app-a-debug",
+      "configurePreset": "app-a-debug"
+    }
   ]
 }

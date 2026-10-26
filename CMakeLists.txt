@@ -82,3 +82,19 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 
     # Add user defined libraries
 )
+
+# App A 构建完成后，从 ELF 提取串口升级所需的裸 BIN。
+if(FW_LINKER_SCRIPT STREQUAL "linker/app_a.ld")
+    get_filename_component(_arm_tool_dir "${CMAKE_C_COMPILER}" DIRECTORY)
+    find_program(_arm_objcopy NAMES arm-none-eabi-objcopy
+        HINTS "${_arm_tool_dir}" NO_DEFAULT_PATH REQUIRED)
+    set(_app_bin "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.bin")
+    add_custom_command(
+        OUTPUT "${_app_bin}"
+        COMMAND "${_arm_objcopy}" -O binary
+            "$<TARGET_FILE:${CMAKE_PROJECT_NAME}>" "${_app_bin}"
+        DEPENDS ${CMAKE_PROJECT_NAME}
+        COMMENT "生成 App A 串口升级 BIN"
+        VERBATIM)
+    add_custom_target(app_a_bin ALL DEPENDS "${_app_bin}")
+endif()
